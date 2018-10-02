@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 typedef struct Edge{
 	int vertex;
@@ -6,6 +7,10 @@ typedef struct Edge{
 } edge;
 
 edge **initGraph(int n, int m);
+edge *crEdge(int x);
+void addEdge(edge **list, int x);
+void clean (edge **list, int n);
+void printGraph(edge **graph, int n);
 
 int main(){
 
@@ -15,8 +20,8 @@ int main(){
 	scanf("%d %d", &n, &m);
 	while(n != 0 && m != 0){
 		graph = initGraph(n, m);
-
-
+		
+		//printGraph(graph, n);
 		clean(graph, n);
 		scanf("%d %d", &n, &m);
 	}
@@ -29,8 +34,8 @@ edge **initGraph(int n, int m){
 	new = (edge **) malloc (n * sizeof(edge *));
 	while(m > 0){
 		scanf("%d %d", &x, &y);
-		addEdge(new[x-1], y);
-		addEdge(new[y-1], x);
+		addEdge(&new[x-1], y);
+		addEdge(&new[y-1], x);
 		m--;
 	}
 	return new;
@@ -74,4 +79,19 @@ void clean (edge **list, int n){
 		}
 	}
 	free(list);
+}
+
+void printGraph(edge **graph, int n){
+	edge *aux;
+	int i;
+
+	for(i = 0; i < n; i++){
+		printf("Vertex %d ----> ", i+1);
+		aux = graph[i];
+		while(aux != NULL){
+			printf("%d ", aux->vertex);
+			aux = aux->next;
+		}
+		printf("\n");
+	}
 }
