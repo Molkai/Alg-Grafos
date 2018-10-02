@@ -21,11 +21,11 @@ int main(){
 	scanf("%d %d", &n, &m);
 	while(n != 0 && m != 0){
 		graph = initGraph(n, m);
+		printGraph(graph, n);
 		if(modifiedBFS(graph, n) == 1)
 			printf("SIM\n");
 		else
 			printf("NAO\n");
-		//printGraph(graph, n);
 		clean(graph, n);
 		free(graph);
 		scanf("%d %d", &n, &m);
@@ -34,9 +34,11 @@ int main(){
 
 edge **initGraph(int n, int m){
 	edge **new;
-	int x, y;
+	int x, y, i;
 
 	new = (edge **) malloc (n * sizeof(edge *));
+	for(i = 0; i < n; i++)
+		new[i] = NULL;
 	while(m > 0){
 		scanf("%d %d", &x, &y);
 		addEdge(&new[x-1], y);
