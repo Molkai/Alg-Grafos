@@ -10,6 +10,7 @@ edge **initGraph(int n, int m);
 edge *crEdge(int x);
 void addEdge(edge **list, int x);
 void clean (edge **list, int n);
+int modifiedBFS(edge **graph, int n);
 void printGraph(edge **graph, int n);
 
 int main(){
@@ -20,9 +21,13 @@ int main(){
 	scanf("%d %d", &n, &m);
 	while(n != 0 && m != 0){
 		graph = initGraph(n, m);
-		
+		if(modifiedBFS(graph, n) == 1)
+			printf("SIM\n");
+		else
+			printf("NAO\n");
 		//printGraph(graph, n);
 		clean(graph, n);
+		free(graph);
 		scanf("%d %d", &n, &m);
 	}
 }
@@ -78,7 +83,57 @@ void clean (edge **list, int n){
 			aux = aux2;
 		}
 	}
-	free(list);
+}
+
+int modifiedBFS(edge **graph, int n){
+	int *queue, begin = 0, end = 0, i;
+	char *color, *group;
+	edge *aux;
+
+	queue = (int *) malloc (n * sizeof(int));
+	color = (char *) malloc (n);
+	group = (char *) malloc (n);
+	queue[end] = 1;
+	end++;
+	for(i = 1; i < n; i++){
+		color[i] = 'b';
+		group[i] = '0';
+	}
+	color[0] = 'c';
+	group[0] = '1';
+	while(begin < n){
+		i = queue[begin];
+		begin++;
+		aux = graph[i - 1];
+		while(aux != NULL){
+			if(color[aux->vertex - 1] == 'b'){
+				color[aux->vertex - 1] = 'c';
+				if(group[i-1] == '1')
+					group[aux->vertex - 1] = '2';
+				else
+					group[aux->vertex - 1] = '1';
+				queue[end] = aux->vertex;
+				end++;
+			} else if(group[aux->vertex - 1] == group[i - 1]){
+				free(queue);
+				free(color);
+				free(group);
+				return(0);
+			}
+			aux = aux->next;
+		}
+		color[i - 1] = 'p';
+		if(begin == end)
+			for(i = 0; i < n; i++)
+				if(color[i] == 'b'){
+					queue[end] == i+1;
+					end++;
+				}
+	}
+	free(queue);
+	free(color);
+	free(group);
+	return(1);
 }
 
 void printGraph(edge **graph, int n){
