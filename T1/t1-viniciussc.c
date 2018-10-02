@@ -21,7 +21,7 @@ int main(){
 	scanf("%d %d", &n, &m);
 	while(n != 0 && m != 0){
 		graph = initGraph(n, m);
-		printGraph(graph, n);
+		//printGraph(graph, n);
 		if(modifiedBFS(graph, n) == 1)
 			printf("SIM\n");
 		else
@@ -88,7 +88,7 @@ void clean (edge **list, int n){
 }
 
 int modifiedBFS(edge **graph, int n){
-	int *queue, begin = 0, end = 0, i;
+	int *queue, begin = 0, end = 0, i, j;
 	char *color, *group;
 	edge *aux;
 
@@ -126,9 +126,9 @@ int modifiedBFS(edge **graph, int n){
 		}
 		color[i - 1] = 'p';
 		if(begin == end)
-			for(i = 0; i < n; i++)
+			for(i = 0; i < n && end == begin; i++)
 				if(color[i] == 'b'){
-					queue[end] == i+1;
+					queue[end] = i+1;
 					end++;
 				}
 	}
