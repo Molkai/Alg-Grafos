@@ -20,7 +20,7 @@ int main(){
 	edge **graph; //Ponteiro para a lista de adjaccencias do grafo
 
 	scanf("%d %d", &n, &m);
-	while(n != 0 && m != 0){ //Loop para cada instancia de grafo
+	while(!(n == 0 && m == 0)){ //Loop para cada instancia de grafo
 		graph = initGraph(n, m);
 		if(modifiedBFS(graph, n) == 1) //Utilização da BFS com a saida do programa
 			printf("SIM\n");
