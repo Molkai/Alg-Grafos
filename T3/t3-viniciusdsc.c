@@ -18,7 +18,7 @@ void printGraph(edge **graph, int n);
 int main(){
 
     int n, m, i, tempo, *d, *f, conFlag, u; //Variaveis para armazenar o numero de vertices e aestas do grafo
-    edge **graph, **graphT; //Ponteiro para a lista de adjaccencias do grafo
+    edge **graph, **graphT = NULL; //Ponteiro para a lista de adjaccencias do grafo
     int resp;
     char *cor;
 
@@ -37,7 +37,7 @@ int main(){
         for(i = 0; i < n; i++)
             if(cor[i] == 'b')
                 conFlag = 0;
-        if(conflag != 0){
+        if(conFlag != 0){
             for(i = 0; i < n; i++){
                 cor[i] = 'b';
                 if(f[u] < f[i])
@@ -54,12 +54,15 @@ int main(){
         else
             printf("1\n");
         clean(graph, n); //Limpeza das variaveis alocadas
-        clean(graphT, n);
         free(graph);
-        free(graphT);
+        if(graphT != NULL){
+            clean(graphT, n);
+            free(graphT);
+            graphT = NULL;
+        }
         free(cor);
         free(d);
-        free(t);
+        free(f);
         scanf("%d %d", &n, &m);
     }
 }
@@ -145,8 +148,9 @@ edge **GtInit(edge **graph, int n){
     int i; //Iterador do loop para inicializar os campos da lista de adjacencia
 
     new = (edge **) malloc (n * sizeof(edge *));
+    for(i = 0; i < n; i++)
+        new[i] = NULL;
     for(i = 0; i < n; i++){
-        //new[i] = NULL;
         aux = graph[i];
         while(aux != NULL){
             addEdge(&new[aux->vertex], i); //Adiciona o vertice y na lista de adjacencia de x
