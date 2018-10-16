@@ -11,7 +11,7 @@ edge **initGraph(int n, int m); //Funcao utilizada para criar a lista de adjacen
 edge *crEdge(int x); //Funcao utilizada para criar uma aresta
 void addEdge(edge **list, int x); //Funcao utilizada para adicionar um vertice na lista de adjacencia de um vertice
 void clean (edge **list, int n); //Funcao utilizada para limpar uma lista de adjacencia apos seu uso
-void DFS(edge **graph, int u, char *cor, int tempo, int *d, int *f); //BFS modificada para achar caminhos minimos em um grafo
+void DFS(edge **graph, int u, char *cor, int *tempo, int *d, int *f); //BFS modificada para achar caminhos minimos em um grafo
 void printGraph(edge **graph, int n);
 
 int main(){
@@ -35,7 +35,7 @@ int main(){
         conFlag = 1;
         tempo = 0;
         u = 0;
-        DFS(graph, u, cor, tempo, d, f);
+        DFS(graph, u, cor, &tempo, d, f);
         /*Processamento do grafo*/
         clean(graph, n); //Limpeza das variaveis alocadas
         free(graph);
@@ -103,20 +103,20 @@ void clean (edge **list, int n){
     }
 }
 
-void DFS(edge **graph, int u, char *cor, int tempo, int *d, int *f){
+void DFS(edge **graph, int u, char *cor, int *tempo, int *d, int *f){
     edge *aux = graph[u];
 
     cor[u] = 'c';
-    d[u] = tempo;
-    tempo++;
+    d[u] = *tempo;
+    (*tempo)++;
     while(aux != NULL){
         if(cor[aux->vertex] ==  'b')
-            DFS(graph, aux->vertex, cor, tempo, d, f);
+            DFS(graph, aux->vertex, cor, &tempo, d, f);
         aux = aux->next;
     }
     cor[u] = 'p';
-    f[u] = tempo;
-    tempo++;
+    f[u] = *tempo;
+    (*tempo)++;
 }
 
 void printGraph(edge **graph, int n){
