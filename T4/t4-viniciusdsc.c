@@ -7,7 +7,7 @@ typedef struct Edge{
     struct Edge *next;
 } edge;
 
-edge **initGraph(int n, int m); //Funcao utilizada para criar a lista de adjacencia do grafo
+edge **initGraph(int n, int m, int *grau); //Funcao utilizada para criar a lista de adjacencia do grafo
 edge *crEdge(int x); //Funcao utilizada para criar uma aresta
 void addEdge(edge **list, int x); //Funcao utilizada para adicionar um vertice na lista de adjacencia de um vertice
 void clean (edge **list, int n); //Funcao utilizada para limpar uma lista de adjacencia apos seu uso
@@ -16,7 +16,7 @@ void printGraph(edge **graph, int n);
 
 int main(){
 
-    int n, m, i, tempo, *d, *f, u, horas; //Variaveis para armazenar o numero de vertices e aestas do grafo
+    int n, m, i, tempo, *d, *f, u, horas, *grau, *topsort; //Variaveis para armazenar o numero de vertices e aestas do grafo
     edge **graph; //Ponteiro para a lista de adjaccencias do grafo
     int resp;
     char *cor;
@@ -26,7 +26,10 @@ int main(){
         horas = (int *) malloc (n * sizeof(int));
         for(i = 0; i < n; i++)
             scanf("%d", &horas[i]);
-        graph = initGraph(n, m);
+        grau = (int *) malloc (n * sizeof(int));
+        for(i = 0; i < n; i++)
+            grau[i] = 0;
+        graph = initGraph(n, m, grau);
         cor = (char *) malloc (n);
         d = (int *) malloc (n * sizeof(int));
         f = (int *) malloc (n * sizeof(int));
@@ -36,13 +39,20 @@ int main(){
         tempo = 0;
         u = 0;
         DFS(graph, u, cor, &tempo, d, f);
-        /*Processamento do grafo*/
+        topsort = (int *) malloc (2 * n * sizeof(int));
+        for(i = 0; i < 2*n;i++)
+            topsort[i] = -1;
+        for(i = 0; i < n; i++)
+            topsort[(2*n)-f[i]] = i;
+        /*Processamento do topsort com grau e horas*/
         clean(graph, n); //Limpeza das variaveis alocadas
         free(graph);
         free(cor);
         free(d);
         free(f);
         free(horas);
+        free(topsort);
+        free(grau);
         scanf("%d %d", &n, &m);
     }
 }
@@ -57,6 +67,7 @@ edge **initGraph(int n, int m){
         new[i] = NULL;
     while(m > 0){
         scanf("%d %d", &x, &y);
+        grau[y]++;
         addEdge(&new[x], y); //Adiciona o vertice y na lista de adjacencia de x
          m--;
     }
