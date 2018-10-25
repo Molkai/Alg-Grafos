@@ -7,18 +7,18 @@ typedef struct Edge{
     struct Edge *next;
 } edge;
 
-edge **initGraph(int n, int m, int *grau); //Funcao utilizada para criar a lista de adjacencia do grafo
+edge **initGraph(int n, int m); //Funcao utilizada para criar a lista de adjacencia do grafo
 edge *crEdge(int x); //Funcao utilizada para criar uma aresta
 void addEdge(edge **list, int x); //Funcao utilizada para adicionar um vertice na lista de adjacencia de um vertice
 void clean (edge **list, int n); //Funcao utilizada para limpar uma lista de adjacencia apos seu uso
-void DFS(edge **graph, int u, char *cor, int *tempo, int *d, int *f); //BFS modificada para achar caminhos minimos em um grafo
+void DFS_aux(edge **graph, char *cor, int *maior, int *horas, int n);
+void DFS(edge **graph, int u, char *cor, int *maior, int *horas, int *tempo);
 void printGraph(edge **graph, int n);
 
 int main(){
 
-    int n, m, i, tempo, *d, *f, u, horas, *grau, *topsort; //Variaveis para armazenar o numero de vertices e aestas do grafo
+    int n, m, i, *horas, maior;
     edge **graph; //Ponteiro para a lista de adjaccencias do grafo
-    int resp;
     char *cor;
 
     scanf("%d %d", &n, &m);
@@ -26,33 +26,12 @@ int main(){
         horas = (int *) malloc (n * sizeof(int));
         for(i = 0; i < n; i++)
             scanf("%d", &horas[i]);
-        grau = (int *) malloc (n * sizeof(int));
-        for(i = 0; i < n; i++)
-            grau[i] = 0;
-        graph = initGraph(n, m, grau);
-        cor = (char *) malloc (n);
-        d = (int *) malloc (n * sizeof(int));
-        f = (int *) malloc (n * sizeof(int));
-        for(i = 0; i < n; i++)
-            cor[i] = 'b';
-        conFlag = 1;
-        tempo = 0;
-        u = 0;
-        DFS(graph, u, cor, &tempo, d, f);
-        topsort = (int *) malloc (2 * n * sizeof(int));
-        for(i = 0; i < 2*n;i++)
-            topsort[i] = -1;
-        for(i = 0; i < n; i++)
-            topsort[(2*n)-f[i]] = i;
-        /*Processamento do topsort com grau e horas*/
+        graph = initGraph(n, m);
+        DFS_aux(graph, cor, &maior, horas, n);
+        printf("%d\n",  maior);
         clean(graph, n); //Limpeza das variaveis alocadas
         free(graph);
-        free(cor);
-        free(d);
-        free(f);
         free(horas);
-        free(topsort);
-        free(grau);
         scanf("%d %d", &n, &m);
     }
 }
@@ -67,7 +46,6 @@ edge **initGraph(int n, int m){
         new[i] = NULL;
     while(m > 0){
         scanf("%d %d", &x, &y);
-        grau[y]++;
         addEdge(&new[x], y); //Adiciona o vertice y na lista de adjacencia de x
          m--;
     }
@@ -114,20 +92,38 @@ void clean (edge **list, int n){
     }
 }
 
-void DFS(edge **graph, int u, char *cor, int *tempo, int *d, int *f){
+void DFS_aux(edge **graph, char *cor, int *maior, int *horas, int n){
+    int i;
+    int *tempo = (int *) malloc (n * sizeof(int));
+
+    cor = (char *) malloc (n);
+    for(i = 0; i < n; i++){
+        cor[i] = 'b';
+        tempo[i] = 0;
+    }
+    *maior = 0;
+    for(i = 0; i < n; i++)
+        if(cor[i] == 'b')
+            DFS(graph, i, cor, maior, horas, tempo);
+    free(cor);
+}
+
+void DFS(edge **graph, int u, char *cor, int *maior, int *horas, int *tempo){
     edge *aux = graph[u];
 
     cor[u] = 'c';
-    d[u] = *tempo;
-    (*tempo)++;
     while(aux != NULL){
         if(cor[aux->vertex] ==  'b')
-            DFS(graph, aux->vertex, cor, &tempo, d, f);
+            DFS(graph, aux->vertex, cor, maior, horas, tempo);
+            if(tempo[aux->vertex] + horas[u] > tempo[u])
+                tempo[u] = tempo[aux->vertex] + horas[u];
         aux = aux->next;
     }
+    if(tempo[u] == 0)
+        tempo[u] = horas[u];
+    if(tempo[u] > *maior)
+        *maior = tempo[u];
     cor[u] = 'p';
-    f[u] = *tempo;
-    (*tempo)++;
 }
 
 void printGraph(edge **graph, int n){
