@@ -9,24 +9,24 @@ typedef struct Edge{
 
 edge **initGraph(int n, int m); //Funcao utilizada para criar a lista de adjacencia do grafo
 edge *crEdge(int x); //Funcao utilizada para criar uma aresta
-void addEdge(edge **list, int x); //Funcao utilizada para adicionar um vertice na lista de adjacencia de um vertice
-void clean (edge **list, int n); //Funcao utilizada para limpar uma lista de adjacencia apos seu uso
-void DFS_aux(edge **graph, char *cor, int *maior, int *horas, int n);
-void DFS(edge **graph, int u, char *cor, int *maior, int *horas, int *tempo);
-void printGraph(edge **graph, int n);
+void addEdge(edge **list, int x); //Funcao utilizada para adicionar um vertice na lista de adjacencia de um outro vertice
+void clean (edge **list, int n); //Funcao utilizada para limpar as listas de adjacencia apos seu uso
+void DFS_aux(edge **graph, char *cor, int *maior, int *horas, int n); //DFS auxiliar para inicializar variaveis e rodar a DFS em todos os vertices
+void DFS(edge **graph, int u, char *cor, int *maior, int *horas, int *tempo); //DFS alterada para encontrar o caminho de maior peso dentro do grafo a partir de um vertice
+void printGraph(edge **graph, int n); //Funcao utilizada para testes
 
 int main(){
 
-    int n, m, i, *horas, maior;
+    int n, m, i, *horas, maior; //Variaveis para numero de vertices e arestas do grafo, um iterador, vetor com os pesos de cada vertice e variavel que salva o peso do caminho mais pesado
     edge **graph; //Ponteiro para a lista de adjaccencias do grafo
-    char *cor;
+    char *cor; //Vetor de cores para os vertices (branco, cinza ou preto)
 
     scanf("%d %d", &n, &m);
     while(!(n == 0 && m == 0)){ //Loop para cada instancia de grafo
         horas = (int *) malloc (n * sizeof(int));
         for(i = 0; i < n; i++)
-            scanf("%d", &horas[i]);
-        graph = initGraph(n, m);
+            scanf("%d", &horas[i]); //Salva o peso para cada vertice
+        graph = initGraph(n, m); //Constroi a lista de adjacencia do grafo
         DFS_aux(graph, cor, &maior, horas, n);
         printf("%d\n",  maior);
         clean(graph, n); //Limpeza das variaveis alocadas
@@ -38,7 +38,7 @@ int main(){
 
 edge **initGraph(int n, int m){
     edge **new; //Variavel para alocar a nova lista de adjacencia
-    int x, y, z; //Varivaeis que guardam os vertices que incidem na aresta
+    int x, y; //Varivaeis que guardam os vertices que incidem na aresta
     int i; //Iterador do loop para inicializar os campos da lista de adjacencia
 
     new = (edge **) malloc (n * sizeof(edge *));
@@ -61,7 +61,7 @@ edge *crEdge(int x){
     return new;
 }
 
-void addEdge(edge **list, int x){
+void addEdge(edge **list, int x){ //Insere um vertice na lista de adjacencia de outro de forma ordenada
     edge *new; //Variavel para alocar uma nova aresta
     edge *aux = *list; //Variavel auxiliar para manipular uma lista de adjacencia
 
@@ -94,34 +94,34 @@ void clean (edge **list, int n){
 
 void DFS_aux(edge **graph, char *cor, int *maior, int *horas, int n){
     int i;
-    int *tempo = (int *) malloc (n * sizeof(int));
+    int *tempo = (int *) malloc (n * sizeof(int)); //Vetor que salva o maior peso entre os caminhos de cada no ate uma folha
 
     cor = (char *) malloc (n);
     for(i = 0; i < n; i++){
         cor[i] = 'b';
-        tempo[i] = 0;
+        tempo[i] = 0; //Todos iniciam com zero
     }
-    *maior = 0;
+    *maior = 0; //Inicialmente o maior é zero
     for(i = 0; i < n; i++)
         if(cor[i] == 'b')
-            DFS(graph, i, cor, maior, horas, tempo);
+            DFS(graph, i, cor, maior, horas, tempo); //Chama a DFS para todo vertice que estiver branco
     free(cor);
 }
 
 void DFS(edge **graph, int u, char *cor, int *maior, int *horas, int *tempo){
-    edge *aux = graph[u];
+    edge *aux = graph[u]; //aux aponta para a lista de adjacencia do verice atualmente sendo analisado
 
     cor[u] = 'c';
-    while(aux != NULL){
+    while(aux != NULL){ //Analisa toda a lista de adjacencia do vertice u
         if(cor[aux->vertex] ==  'b')
-            DFS(graph, aux->vertex, cor, maior, horas, tempo);
-            if(tempo[aux->vertex] + horas[u] > tempo[u])
-                tempo[u] = tempo[aux->vertex] + horas[u];
+            DFS(graph, aux->vertex, cor, maior, horas, tempo); //Chama a DFS para os vertices ainda brancos na lista de adjacencia de u
+            if(tempo[aux->vertex] + horas[u] > tempo[u]) //Quando volta de uma chamada recursiva analisa se o caminho de maior peso atraves daquele no é mais pesado que o caminho de maior peso atual do no u
+                tempo[u] = tempo[aux->vertex] + horas[u]; //Se for mais pesado, altera o caminho mais pesado para esse novo peso encontrado
         aux = aux->next;
     }
-    if(tempo[u] == 0)
+    if(tempo[u] == 0) //Em caso de folhas elas nao tem adjacencias para serem analisadas, e portanto seu caminho mais pesado é unitario e passa somente pela propria folha
         tempo[u] = horas[u];
-    if(tempo[u] > *maior)
+    if(tempo[u] > *maior) //Caso o peso do maior caminho daquele vertice seja maior que o maior encontrado atualmente altera o maior encotrado
         *maior = tempo[u];
     cor[u] = 'p';
 }
