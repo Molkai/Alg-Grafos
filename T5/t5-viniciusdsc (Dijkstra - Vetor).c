@@ -113,19 +113,9 @@ int Dijkstra(edge **graph, int n, int root, int k){
             aux = aux->next;
         }
         i = smaller(dist, isInTree, n);
+        if(i < k)
+            return(i);
     }
-
-    for(i = 0; i < k; i++){ //Alterar para só considerar vertices abaixo de k
-        if(small == -1){
-            small = dist[i];
-            vertex = i;
-        } else if(small > dist[i]){
-            small = dist[i];
-            vertex = i;
-        }
-    }
-
-    return vertex;
 }
 
 int smaller(int *dist, char *isInTree, int n){
