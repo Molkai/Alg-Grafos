@@ -12,7 +12,7 @@ edge **initGraph(int n, int m); //Funcao utilizada para criar a lista de adjacen
 edge *crEdge(int x, int w); //Funcao utilizada para criar uma aresta
 void addEdge(edge **list, int x, int w); //Funcao utilizada para adicionar um vertice na lista de adjacencia de um vertice
 void clean (edge **list, int n); //Funcao utilizada para limpar uma lista de adjacencia apos seu uso
-int Dijkstra(edge **graph, int n, int root, int k); //Algoritmo de Dijkstra com algumas modificações
+int *Dijkstra(edge **graph, int n, int k); //Algoritmo de Dijkstra com algumas modificações
 int smaller(int *dist, char *isInTree, int n); //Função que retorna o vertice com a atual menor distancia em relação à raíz
 void printGraph(edge **graph, int n); //Função utilizada apenas para testes
 
@@ -20,13 +20,15 @@ int main(){
 
     int n, m, k; //Variaveis para armazenar o numero de vertices, numero de arestas do grafo e o divisor entre distribuidoras e estufas
     int i; //Iterador para execução do Dijkstra n-k vezes
+    int *result;
     edge **graph; //Ponteiro para a lista de adjaccencias do grafo
 
     scanf("%d %d %d", &n, &m, &k);
     graph = initGraph(n, m);
+    result = Dijkstra(graph, n, k);
     for(i = k; i < n-1; i++)
-        printf("%d ", Dijkstra(graph, n, i, k)); //Executa o Dijkstra que já retorna a estufa mais proxima da i-ésima distribuidora
-    printf("%d\n", Dijkstra(graph, n, i, k)); //Executa o Dijkstra para a ultima distribuidora (Colocado para fora do loop, pois tem uma impressão diferente das outras)
+        printf("%d ", result[i]); //Executa o Dijkstra que já retorna a estufa mais proxima da i-ésima distribuidora
+    printf("%d\n", result[i]); //Executa o Dijkstra para a ultima distribuidora (Colocado para fora do loop, pois tem uma impressão diferente das outras)
     clean(graph, n); //Limpeza das variaveis alocadas
     free(graph);
 
@@ -91,31 +93,38 @@ void clean (edge **list, int n){
     }
 }
 
-int Dijkstra(edge **graph, int n, int root, int k){
+int *Dijkstra(edge **graph, int n, int k){
     int dist[n]; //Vetor que salva as distancias atuais de root ate o i-ésimo vertice do vetor
     int i; //Iterador geral para os loops da função
+    int *estufa = (int *) malloc (n * sizeof(int));
     edge *aux; //Apontador para a lista de adjacencia do vertice sendo atualmente analisado
     char isInTree[n]; //Vetor para saber quais vertices ja foram analisados
-
-    for(i = 0; i < n; i++){ //Inicializa com distancia infinita e que não foi analisado ainda para todos os vertices
+    for(i = 0; i < k; i++){
+        dist[i] = 0;
+        isInTree[i] = 'n';
+        estufa[i] = i;
+    }
+    for(; i < n; i++){ //Inicializa com distancia infinita e que não foi analisado ainda para todos os vertices
         dist[i] = -1;
         isInTree[i] = 'n';
+        estufa[i] = -1;
     }
-    dist[root] = 0; //Inicializa a raíz como distancia 0
-    isInTree[root] = 's'; //Inicializa como se a raíz jś tivesse sido analisada
-    i = root; //Coloca a raíz como primeiro vertice a ser analisado
+    i = smaller(dist, isInTree, n); //Coloca a raíz como primeiro vertice a ser analisado
     while(i != -1){ //Executa o loop enquanto houver um vertice não analisado
         aux = graph[i]; //Aponta aux para a lista de adjacencia do vertice sendo analisado atualmente
         while(aux != NULL){ //Enquanto tiver uma ajacencia não analisada executa esse loop
-            if(isInTree[aux->vertex] == 'n' && dist[i] != -1) //Se o vertice adjacente não foi analisado ainda
-                if(dist[aux->vertex] == -1 || (dist[aux->vertex] > dist[i] + aux->weight)) //Se a distancia dele atualmente for maior que a distancia ate i somada ao peso da aresta, muda a sua distancia
+            if(isInTree[aux->vertex] == 'n' && dist[i] != -1){ //Se o vertice adjacente não foi analisado ainda
+                if(dist[aux->vertex] == -1 || (dist[aux->vertex] > dist[i] + aux->weight)){ //Se a distancia dele atualmente for maior que a distancia ate i somada ao peso da aresta, muda a sua distancia
                     dist[aux->vertex] = dist[i] + aux->weight;
+                    estufa[aux->vertex] = estufa[i];
+                } else if(dist[aux->vertex] == dist[i] + aux->weight && estufa[aux->vertex] > estufa[i])
+                    estufa[aux->vertex] = estufa[i];
+            }
             aux = aux->next;
         }
         i = smaller(dist, isInTree, n); // Chama função smaller para saber o proximo menor vertice
-        if(i < k) //Caso o proximo menor vertice for uma estufa retorna ele, pois essa é a estufa mais proxima do centro atual
-            return(i);
     }
+    return(estufa);
 }
 
 int smaller(int *dist, char *isInTree, int n){
