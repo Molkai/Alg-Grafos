@@ -19,16 +19,16 @@ void printGraph(edge **graph, int n); //Função utilizada apenas para testes
 int main(){
 
     int n, m, k; //Variaveis para armazenar o numero de vertices, numero de arestas do grafo e o divisor entre distribuidoras e estufas
-    int i; //Iterador para execução do Dijkstra n-k vezes
+    int i;
     int *result;
-    edge **graph; //Ponteiro para a lista de adjaccencias do grafo
+    edge **graph; //Ponteiro para a lista de adjacencias do grafo
 
     scanf("%d %d %d", &n, &m, &k);
     graph = initGraph(n, m);
-    result = Dijkstra(graph, n, k);
+    result = Dijkstra(graph, n, k); //Executa o Dijkstra que retorna um vetor com as estufas mais proximas do i-esimo vértice
     for(i = k; i < n-1; i++)
-        printf("%d ", result[i]); //Executa o Dijkstra que já retorna a estufa mais proxima da i-ésima distribuidora
-    printf("%d\n", result[i]); //Executa o Dijkstra para a ultima distribuidora (Colocado para fora do loop, pois tem uma impressão diferente das outras)
+        printf("%d ", result[i]);
+    printf("%d\n", result[i]);
     clean(graph, n); //Limpeza das variaveis alocadas
     free(graph);
 
@@ -99,7 +99,7 @@ int *Dijkstra(edge **graph, int n, int k){
     int *estufa = (int *) malloc (n * sizeof(int));
     edge *aux; //Apontador para a lista de adjacencia do vertice sendo atualmente analisado
     char isInTree[n]; //Vetor para saber quais vertices ja foram analisados
-    for(i = 0; i < k; i++){
+    for(i = 0; i < k; i++){ //Inicializa raizes com distancia 0
         dist[i] = 0;
         isInTree[i] = 'n';
         estufa[i] = i;
